@@ -1,14 +1,6 @@
 <h1 align="center">Leilão Online em Tempo Real com Sockets UDP</h1>
 
-<p align="center">Leonardo Ferreira Cabral</p>
-
-## 📝 Sumário
-
-- [📖 Sobre](#sobre)
-- [🔀 Diferenças em relação ao TCP](#diferencas)
-- [🏁 Primeiros Passos](#primeiros_passos)
-- [📱 Uso](#uso)
-- [⛏️ Tecnologias Utilizadas](#tecnologias)
+<p align="center">Leonardo Ferreira Cabral(sem grupo)</p>
 
 ## 📖 Sobre <a name = "sobre"></a>
 
@@ -16,16 +8,6 @@ Versão com Sockets UDP do sistema distribuído cliente-servidor que gerencia um
 
 O servidor recebe os datagramas em um único socket e entrega cada um a um conjunto de threads (`ThreadPoolExecutor`). Por isso, lances de clientes diferentes são processados ao mesmo tempo. A validação e o registro de um lance acontecem dentro de um mesmo `threading.Lock`, então lances concorrentes são registrados de forma atômica. Sempre que um novo lance válido é registrado, o servidor envia imediatamente um datagrama `NEW_BID` para todos os outros licitantes registrados, ainda dentro da seção crítica, para que as notificações saiam na mesma ordem em que os lances foram registrados.
 
-## 🔀 Diferenças em relação ao TCP <a name = "diferencas"></a>
-
-O UDP não tem conexão e não garante a entrega nem a ordem dos datagramas. Por isso, esta versão acrescenta alguns mecanismos:
-
-- **Registro de clientes:** no lugar da conexão persistente, o cliente envia `JOIN` e o servidor guarda o endereço (IP e porta) dele. É para esse endereço que as notificações são enviadas.
-- **Manutenção do registro:** o cliente envia `PING` a cada 10 segundos. Um cliente que fica 30 segundos sem enviar nada é removido, o que substitui a detecção de queda que o TCP faz sozinho.
-- **Retransmissão:** cada comando leva um número de sequência. Se a resposta não chega em 1 segundo, o cliente reenvia o comando (até 5 vezes).
-- **Sem lance duplicado:** o servidor guarda a última resposta de cada cliente. Se o mesmo comando chegar de novo (porque a resposta anterior se perdeu), ele reenvia a resposta guardada em vez de processar o lance outra vez.
-- **Fim do leilão:** a mensagem `END` é enviada 3 vezes, para aumentar a chance de chegar.
-- **Limitação:** as notificações `NEW_BID` não são retransmitidas. Se uma se perder, o cliente pode usar `STATUS` para ver o lance atual.
 
 ## 🏁 Primeiros Passos <a name = "primeiros_passos"></a>
 
